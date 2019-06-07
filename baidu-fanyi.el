@@ -28,12 +28,19 @@
 
 (require 'url)
 (require 'json)
+(require 'auth-source)
 
 (defvar url-http-response-status)
 
-(defvar baidu-fanyi-appid nil
+(defvar baidu-fanyi-appid
+  (let ((plist (car (auth-source-search :max 1 :host "fanyi.baidu.com"))))
+    (plist-get plist :user))
   "通用翻译 API 的 APP ID.")
-(defvar baidu-fanyi-secretkey nil
+
+(defvar baidu-fanyi-secretkey
+  (let ((plist (car (auth-source-search :max 1 :host "fanyi.baidu.com"))))
+    (let ((v (plist-get plist :secret)))
+      (if (functionp v) (funcall v) v)))
   "通用翻译 API 的密钥.")
 
 (defvar baidu-fanyi-endpoint

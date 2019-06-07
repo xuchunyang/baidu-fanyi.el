@@ -4,7 +4,11 @@
 
 ## 使用
 
-申请通用翻译 API 之后，设置 APP ID 和密钥：
+申请通用翻译 API 之后，需要设置 APP ID 和密钥。`baidu-fanyi.el` 首次加载会尝试从 `~/.authinfo[.gpg]` 读取：
+
+    machine fanyi.baidu.com login APIID password SECRETKEY
+
+你也可以从 Lisp 设置：
 
 ``` emacs-lisp
 (setq baidu-fanyi-appid "APP ID"
