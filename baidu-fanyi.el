@@ -109,6 +109,7 @@
       (when-let ((error-msg (alist-get 'error_msg result)))
         (signal 'baidu-fanyi-error (list error-msg)))
 
+      (kill-buffer (current-buffer))
       result)))
 
 (defconst baidu-fanyi-langs-alist
