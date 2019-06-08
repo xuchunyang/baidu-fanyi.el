@@ -6,4 +6,6 @@ jobs:
     steps:
       - checkout
       - run: emacs --version
-      - run: make compile
+      # /bin/bash: make: command not found
+      # - run: make compile
+      - run: emacs -Q --batch -L . --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile baidu-fanyi.el
