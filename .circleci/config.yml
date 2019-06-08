@@ -5,6 +5,5 @@ jobs:
       - image: silex/emacs:26.2
     steps:
       - checkout
-      - run: echo "A first hello"
-      - run: pwd
-      - run: ls
+      - run: emacs --version
+      - run: make compile
