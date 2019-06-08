@@ -30,6 +30,8 @@
 (require 'json)
 (require 'auth-source)
 
+(eval-when-compile (require 'subr-x))   ; `when-let'
+
 (defvar url-http-response-status)
 
 (defvar baidu-fanyi-appid
@@ -50,6 +52,9 @@
 
 (defvar baidu-fanyi-user-aguent
   "baidu-fanyi.el (https://github.com/xuchunyang/baidu-fanyi.el)")
+
+(define-error 'baidu-fanyi-error "Baidu-Fanyi Error" 'error)
+(define-error 'baidu-fanyi-http-error "HTTP Error" 'baidu-fanyi-error)
 
 (defun baidu-fanyi-salt ()
   ;; [32768, 32768*2]
@@ -83,10 +88,12 @@
                (salt . ,salt)
                (sign . ,(baidu-fanyi-sign q salt))))
            "&")
-          'utf-8)))
+          'utf-8))
+        result)
     (with-current-buffer (url-retrieve-synchronously baidu-fanyi-endpoint)
       (unless (= url-http-response-status 200)
-        (error "百度翻译请求出错: %s" (buffer-string)))
+        (signal 'baidu-fanyi-http-error (list (buffer-string))))
+
       (goto-char (point-min))
       (re-search-forward "^\r?\n")
       (let ((json-object-type 'alist)
@@ -94,8 +101,14 @@
             (json-key-type    'symbol)
             (json-false       nil)
             (json-null        nil))
-        (prog1 (json-read)
-          (kill-buffer (current-buffer)))))))
+        (setq result (json-read)))
+
+      ;; success {"from":"en","to":"zh","trans_result":[{"src":"hello","dst":"\u4f60\u597d"}]}
+      ;; failure {"error_code":"58001","error_msg":"INVALID_TO_PARAM"}
+      (when-let ((error-msg (alist-get 'error_msg result)))
+        (signal 'baidu-fanyi-error (list error-msg)))
+
+      result)))
 
 (defconst baidu-fanyi-langs-alist
   ;; 语言简写 - 名称
