@@ -30,7 +30,8 @@
 (require 'json)
 (require 'auth-source)
 
-(eval-when-compile (require 'subr-x))   ; `when-let'
+(eval-when-compile (require 'subr-x))    ; `when-let'
+(eval-when-compile (require 'let-alist)) ; builtin since 25.1
 
 (defvar url-http-response-status)
 
@@ -166,19 +167,21 @@
 
 Q    请求翻译 Query
 FROM 翻译源语言 (可以设置为 auto，代表自动检测)
-TO   译文语言
-
-返回译文.
-"
+TO   译文语言."
   (interactive
    (let ((q (read-string "百度翻译: "))
          (from (baidu-fanyi-read-lang "翻译源语言 (default auto): " "auto"))
          (to (baidu-fanyi-read-lang "译文语言: ")))
      (list q from to)))
-  (let* ((data (baidu-fanyi-request q from to))
-         (result (alist-get 'dst (car (alist-get 'trans_result data)))))
-    (message "%s -> %s" q result)
-    result))
+  (let ((alist (baidu-fanyi-request q from to)))
+    (message
+     "%s"
+     (mapconcat
+      (lambda (x)
+        (let-alist x
+          (format "%s ➔ %s" .src .dst)))
+      (alist-get 'trans_result alist)
+      "\n"))))
 
 ;;;###autoload
 (defun baidu-fanyi-chinese-english (q)

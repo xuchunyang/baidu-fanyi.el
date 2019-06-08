@@ -24,6 +24,31 @@
 ;; => ((from . "zh") (to . "en") (trans_result ((src . "筋疲力尽") (dst . "Exhaustion"))))
 ```
 
+#### 换行问题
+
+包含换行相当于翻译多个文本：
+
+``` emacs-lisp
+(baidu-fanyi-request "hello\nworld" "auto" "zh")
+;; =>
+((from . "en")
+ (to . "zh")
+ (trans_result
+  ((src . "hello") (dst . "你好"))
+  ((src . "world") (dst . "世界"))))
+```
+
+不包含换行：
+
+``` emacs-lisp
+(baidu-fanyi-request "hello\\nworld" "auto" "zh")
+;; => 
+((from . "en")
+ (to . "zh")
+ (trans_result
+  ((src . "hello\\nworld") (dst . "你好\\n沃德"))))
+```
+
 ### `M-x baidu-fanyi-simple Q FROM TO`
 
 同上，在 Minibuffer 显示译文。
